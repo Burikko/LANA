@@ -1,16 +1,20 @@
-name: Build APK
+name: Build APK Terbaru
 on: [push, workflow_dispatch]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Build with Buildozer
-        uses: ArtemSerebrennikov/buildozer-action@v1
+        uses: FarasAtteya/buildozer-action@v1
         with:
           command: android debug
+
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: my-game-apk
           path: bin/*.apk
