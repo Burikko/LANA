@@ -1,20 +1,43 @@
-steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+[app]
 
-      # ... (Langkah install python & system dependencies) ...
+# Nama app dan package
+title = LANA
+package.name = lana.andula.family
+package.domain = org.test
 
-      - name: Pre-install NDK & Accept Licenses
-        run: |
-          # Perintah ini untuk mengunduh NDK secara manual agar tidak error "closed file"
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "ndk;25.2.9519653"
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses || true
-          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653" >> $GITHUB_ENV
+# Source files yang di-include
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas
 
-      - name: Build APK
-        run: |
-          # Gunakan perintah buildozer di sini
-          buildozer -v android debug
-        env:
-          APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
-          ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
+# Versi app (ubah kalau update)
+version = 0.2
+
+# Requirements penting untuk Kivy Android
+requirements = python3,kivy==2.3.0
+
+# Tampilan: portrait + fullscreen (true = hilangkan status bar)
+orientation = portrait
+fullscreen = 1
+
+# Android settings (kompatibel 2026 & Samsung A70 Android 9+)
+android.api = 35                  # Target SDK wajib minimal 35 untuk Play Store
+android.minapi = 24               # Minimum API cover Android 7+ (A70 OK)
+android.ndk = 25b
+android.ndk_api = 24
+android.archs = arm64-v8a, armeabi-v7a  # A70 pakai arm64-v8a utama
+
+# Permission kamera (Kivy akan minta izin saat app dibuka pertama kali)
+android.permissions = CAMERA
+
+# Optional: kalau butuh fitur lain nanti, tambah di sini
+# android.permissions = CAMERA,INTERNET,RECORD_AUDIO
+
+# Entry point default Kivy Android
+android.entrypoint = org.kivy.android.PythonActivity
+
+[buildozer]
+log_level = 2
+warn_on_root = 1
+
+# Kalau build error karena versi lama, uncomment ini:
+# p4a.branch = develop
