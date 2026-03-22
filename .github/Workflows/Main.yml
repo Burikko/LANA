@@ -1,1 +1,10 @@
-sudo apt-get install -y lib2-c6:i386 libstdc++6:i386 zlib1g:i386
+- name: Force Install AIDL
+  run: |
+    sudo apt-get update
+    sudo apt-get install -y aidl libstdc++6
+    # Temukan di mana aidl terinstal sistem
+    AIDL_PATH=$(which aidl)
+    # Buat folder target buildozer (sesuaikan versi build-tools jika perlu)
+    mkdir -p ~/.buildozer/android/platform/android-sdk/build-tools/33.0.0/
+    # Salin biner sistem ke folder buildozer
+    cp $AIDL_PATH ~/.buildozer/android/platform/android-sdk/build-tools/33.0.0/aidl
