@@ -1,4 +1,4 @@
-name: Build APK Lana A70
+name: Build APK Lana A70 Fixed
 
 on:
   push:
@@ -23,37 +23,40 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk git zip unzip python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
 
-      - name: Install Buildozer and dependencies
+      - name: Install Buildozer and Stable Cython
         run: |
           pip install --upgrade pip
-          # Kunci Cython agar stabil dengan Kivy/p4a
+          # Kunci Cython di bawah versi 3 agar tidak error kompilasi
           pip install "cython<3.0" buildozer kivy
 
-      - name: Force Install AIDL & SDK Tools
+      - name: Force Install AIDL Stable (Fix License Error)
         run: |
           export ANDROID_SDK_ROOT=$ANDROID_HOME
-          # Gunakan versi 30.0.3 (Sangat stabil untuk Android 9/10/11)
+          # Langkah 1: Terima SEMUA lisensi secara paksa agar tidak kena error "not accepted"
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses || true
+          
+          # Langkah 2: Instal Build-Tools 30.0.3 (Sangat stabil untuk Android 9/10/A70)
+          # Ini akan menggantikan versi 37-rc2 yang rusak di gambar Anda
           echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;30.0.3" "platforms;android-30" "ndk;25.2.9519653"
           
-          # Paksa link AIDL agar terdeteksi global
-          if [ -f "$ANDROID_HOME/build-tools/30.0.3/aidl" ]; then
-            sudo ln -sf $ANDROID_HOME/build-tools/30.0.3/aidl /usr/local/bin/aidl
-            echo "AIDL 30.0.3 Terpasang!"
-          else
-            echo "Mencoba jalur alternatif build-tools 33..."
-            echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;33.0.0"
-            sudo ln -sf $ANDROID_HOME/build-tools/33.0.0/aidl /usr/local/bin/aidl
-          fi
+          # Langkah 3: Paksa pembuatan Link AIDL agar terbaca oleh Buildozer
+          sudo ln -sf $ANDROID_HOME/build-tools/30.0.3/aidl /usr/local/bin/aidl
           
-          # Terima semua lisensi secara paksa
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
+          # Verifikasi akhir
+          if command -v aidl &> /dev/null; then
+            echo "AIDL BERHASIL TERPASANG!"
+            aidl -version
+          else
+            echo "Mencoba jalur alternatif..."
+            sudo ln -sf $(find $ANDROID_HOME/build-tools -name aidl | head -n 1) /usr/local/bin/aidl
+          fi
 
       - name: Build APK
         run: |
-          # Hapus sisa build gagal agar benar-benar fresh
+          # Hapus sisa build gagal agar benar-benar fresh (mengatasi rm -rf .buildozer)
           rm -rf .buildozer
           rm -rf bin
-          # Jalankan build dengan log detail (verbose)
+          # Jalankan build Lana 360kb dengan verbose
           buildozer -v android debug
         env:
           ACCEPT_SDK_LICENSE: "True"
@@ -61,5 +64,5 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lana-a70-apk
+          name: lana-fixed-a70
           path: bin/*.apk
