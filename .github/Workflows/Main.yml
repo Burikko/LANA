@@ -28,16 +28,21 @@ jobs:
           pip install --upgrade pip
           pip install buildozer cython kivy
 
+      - name: Install Android SDK Build-Tools (AIDL)
+        # Solusi agar AIDL terdeteksi oleh Buildozer dan Lana aktif
+        run: |
+          echo "y" | sudo ${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager "build-tools;34.0.0"
+          sudo ln -s ${ANDROID_HOME}/build-tools/34.0.0/aidl /usr/local/bin/aidl
+
       - name: Accept Android SDK Licenses
         run: |
-          # Perintah ini untuk menginstal lisensi yang tadinya ditolak
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Build APK
         run: |
-          # Menghapus data lama agar tidak bentrok dengan versi 37-rc2 yang error
+          # Bersihkan cache agar tidak ada error versi lama
           rm -rf .buildozer
-          # Menjalankan build dengan izin lisensi otomatis
+          # Eksekusi build Lana 360kb
           buildozer -v android debug
         env:
           ACCEPT_SDK_LICENSE: "True"
