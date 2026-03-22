@@ -1,12 +1,1 @@
-[app]
-# ... (bagian lain tetap)
-
-# Tambah atau ubah ini:
-android.accept_sdk_license = True
-android.build_tools = 35.0.0   # versi stabil terbaru, hindari rc2
-android.api = 35
-android.minapi = 24
-android.ndk = 25b
-
-# Kalau masih error license, tambah ini juga:
-android.skip_update = False
+yes | ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager "build-tools;34.0.0"
