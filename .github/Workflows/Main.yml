@@ -1,4 +1,4 @@
-name: Build APK
+name: Build APK Lana A70
 
 on:
   push:
@@ -26,24 +26,25 @@ jobs:
       - name: Install Buildozer and dependencies
         run: |
           pip install --upgrade pip
-          pip install buildozer cython kivy
+          # Kunci Cython ke versi stabil untuk Kivy/p4a
+          pip install "cython<3.0" buildozer kivy
 
-      - name: Fix Android SDK and Install AIDL
+      - name: Fix Android SDK & AIDL for A70
         run: |
-          # Mengatur path SDK agar Buildozer tidak bingung
           export ANDROID_SDK_ROOT=$ANDROID_HOME
-          # Instal build-tools spesifik yang stabil untuk AIDL
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;33.0.1" "platforms;android-33"
-          # Paksa link aidl ke path sistem agar Buildozer menemukannya tanpa gagal
-          sudo ln -sf $ANDROID_HOME/build-tools/33.0.1/aidl /usr/local/bin/aidl
-          echo "AIDL version:"
-          aidl -version || echo "AIDL link failed but continuing..."
+          # Install Build-Tools 29 (Standar Android 10/A70) agar AIDL stabil
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;29.0.3" "platforms;android-29" "ndk;25.2.9519653"
+          # Paksa link aidl ke sistem
+          sudo ln -sf $ANDROID_HOME/build-tools/29.0.3/aidl /usr/local/bin/aidl
+          # Terima semua lisensi secara paksa
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
       - name: Build APK
         run: |
-          # Bersihkan sisa build gagal sebelumnya
+          # Bersihkan sisa build gagal
           rm -rf .buildozer
-          # Jalankan build dengan mode verbose agar kita bisa lihat errornya di mana
+          rm -rf bin
+          # Jalankan build dengan verbose
           buildozer -v android debug
         env:
           ACCEPT_SDK_LICENSE: "True"
@@ -51,5 +52,5 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lana-apk
+          name: lana-a70-apk
           path: bin/*.apk
