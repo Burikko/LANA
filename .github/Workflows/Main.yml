@@ -26,25 +26,34 @@ jobs:
       - name: Install Buildozer and dependencies
         run: |
           pip install --upgrade pip
-          # Kunci Cython ke versi stabil untuk Kivy/p4a
+          # Kunci Cython agar stabil dengan Kivy/p4a
           pip install "cython<3.0" buildozer kivy
 
-      - name: Fix Android SDK & AIDL for A70
+      - name: Force Install AIDL & SDK Tools
         run: |
           export ANDROID_SDK_ROOT=$ANDROID_HOME
-          # Install Build-Tools 29 (Standar Android 10/A70) agar AIDL stabil
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;29.0.3" "platforms;android-29" "ndk;25.2.9519653"
-          # Paksa link aidl ke sistem
-          sudo ln -sf $ANDROID_HOME/build-tools/29.0.3/aidl /usr/local/bin/aidl
+          # Gunakan versi 30.0.3 (Sangat stabil untuk Android 9/10/11)
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;30.0.3" "platforms;android-30" "ndk;25.2.9519653"
+          
+          # Paksa link AIDL agar terdeteksi global
+          if [ -f "$ANDROID_HOME/build-tools/30.0.3/aidl" ]; then
+            sudo ln -sf $ANDROID_HOME/build-tools/30.0.3/aidl /usr/local/bin/aidl
+            echo "AIDL 30.0.3 Terpasang!"
+          else
+            echo "Mencoba jalur alternatif build-tools 33..."
+            echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "build-tools;33.0.0"
+            sudo ln -sf $ANDROID_HOME/build-tools/33.0.0/aidl /usr/local/bin/aidl
+          fi
+          
           # Terima semua lisensi secara paksa
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses
 
       - name: Build APK
         run: |
-          # Bersihkan sisa build gagal
+          # Hapus sisa build gagal agar benar-benar fresh
           rm -rf .buildozer
           rm -rf bin
-          # Jalankan build dengan verbose
+          # Jalankan build dengan log detail (verbose)
           buildozer -v android debug
         env:
           ACCEPT_SDK_LICENSE: "True"
