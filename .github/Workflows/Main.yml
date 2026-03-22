@@ -1,43 +1,12 @@
 [app]
+# ... (bagian lain tetap)
 
-# Nama app dan package
-title = LANA
-package.name = lana.andula.family
-package.domain = org.test
-
-# Source files yang di-include
-source.dir = .
-source.include_exts = py,png,jpg,kv,atlas
-
-# Versi app (ubah kalau update)
-version = 0.2
-
-# Requirements penting untuk Kivy Android
-requirements = python3,kivy==2.3.0
-
-# Tampilan: portrait + fullscreen (true = hilangkan status bar)
-orientation = portrait
-fullscreen = 1
-
-# Android settings (kompatibel 2026 & Samsung A70 Android 9+)
-android.api = 35                  # Target SDK wajib minimal 35 untuk Play Store
-android.minapi = 24               # Minimum API cover Android 7+ (A70 OK)
+# Tambah atau ubah ini:
+android.accept_sdk_license = True
+android.build_tools = 35.0.0   # versi stabil terbaru, hindari rc2
+android.api = 35
+android.minapi = 24
 android.ndk = 25b
-android.ndk_api = 24
-android.archs = arm64-v8a, armeabi-v7a  # A70 pakai arm64-v8a utama
 
-# Permission kamera (Kivy akan minta izin saat app dibuka pertama kali)
-android.permissions = CAMERA
-
-# Optional: kalau butuh fitur lain nanti, tambah di sini
-# android.permissions = CAMERA,INTERNET,RECORD_AUDIO
-
-# Entry point default Kivy Android
-android.entrypoint = org.kivy.android.PythonActivity
-
-[buildozer]
-log_level = 2
-warn_on_root = 1
-
-# Kalau build error karena versi lama, uncomment ini:
-# p4a.branch = develop
+# Kalau masih error license, tambah ini juga:
+android.skip_update = False
