@@ -21,7 +21,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y openjdk-11-jdk
+          sudo apt-get install -y openjdk-17-jdk
 
       - name: Install Buildozer and dependencies
         run: |
@@ -30,17 +30,15 @@ jobs:
 
       - name: Accept Android SDK Licenses
         run: |
-          # Menggunakan path lengkap agar sistem menemukan sdkmanager
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-
-      - name: Install Android SDK Build Tools
-        run: |
-          # Menggunakan path lengkap juga untuk instalasi build-tools
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2"
+          # Kita setujui semua lisensi di semua folder yang mungkin
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Build APK
         run: |
+          # Paksa buildozer untuk otomatis setuju lisensi lewat variabel lingkungan
           buildozer -v android debug
+        env:
+          ACCEPT_SDK_LICENSE: "True"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
