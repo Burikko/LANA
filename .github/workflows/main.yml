@@ -30,11 +30,13 @@ jobs:
 
       - name: Accept Android SDK Licenses
         run: |
-          yes | sdkmanager --licenses
+          # Menggunakan path lengkap agar sistem menemukan sdkmanager
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
       - name: Install Android SDK Build Tools
         run: |
-          yes | sudo sdkmanager "build-tools;33.0.2"
+          # Menggunakan path lengkap juga untuk instalasi build-tools
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2"
 
       - name: Build APK
         run: |
