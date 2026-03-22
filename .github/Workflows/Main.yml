@@ -1,7 +1,1 @@
-- name: Install dependencies and Accept Licenses
-  run: |
-    sudo apt-get update
-    sudo apt-get install -y python3-pip build-essential git python3 unzip zlib1g-dev libltdl-dev libffi-dev libssl-dev autoconf automake libtool
-    pip3 install --user --upgrade buildozer
-    # Perintah di bawah ini penting untuk menyetujui lisensi
-    yes | buildozer android sdk_run -- sdkmanager --licenses
+sudo apt-get install -y lib2-c6:i386 libstdc++6:i386 zlib1g:i386
